@@ -1,16 +1,8 @@
 import os
 from openai import OpenAI 
 
-
-client = OpenAI(api_key=os.getenv("OPENAI_SECRET_KEY"))
-
-def create_assistant(client, setup_prompt, model="gpt-4-1106-preview"):
-  assistant = client.beta.assistants.create(
-    name="Eldin Ring Oracle", 
-    instructions=setup_prompt,
-    tools=[{"type": "file_search"}],
-    model=model
-  )
+def create_assistant(client:OpenAI, setup_prompt, model="gpt-4-1106-preview"):
+  assistant = client.beta.assistants.retrieve(assistant_id="asst_OJs6abioj7MgOjP4agYX3v0Y")
   return assistant
 
 def create_vector_store(client):
@@ -45,11 +37,11 @@ def create_thread(client):
   thread = client.beta.threads.create()
   return thread
 
-def add_message_to_thread(thread, message):
+def add_message_to_thread(thread, content, client):
   message = client.beta.threads.messages.create(
     thread_id=thread.id,
     role="user",
-    content=message
+    content=content
   )
   return message
 
@@ -69,5 +61,6 @@ def get_assitant_messages(client, thread, assistant):
       if file_citation := getattr(annotation, "file_citation", None):
           cited_file = client.files.retrieve(file_citation.file_id)
           citations.append(f"[{index}] {cited_file.filename}")
-  print(message_content.value)
-  print("\n".join(citations))
+  #print(message_content.value)
+  #print("\n".join(citations))
+  return message_content.value
